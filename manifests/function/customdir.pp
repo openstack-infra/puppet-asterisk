@@ -20,7 +20,6 @@
 #
 define asterisk::function::customdir(
 ) {
-  include asterisk
 
   File {
     group => 'asterisk',

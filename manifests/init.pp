@@ -20,10 +20,10 @@
 #
 # == Class: asterisk
 class asterisk (
-  $asterisk_conf_source = '',
-  $modules_conf_source  = '',
+  $asterisk_conf_source = undef,
+  $modules_conf_source  = undef,
 ) {
-  include asterisk::server::command
+  include ::asterisk::server::command
 
   yumrepo { 'asteriskcurrent':
     baseurl  => 'http://packages.asterisk.org/centos/$releasever/current/$basearch/',
