@@ -71,19 +71,19 @@ class asterisk (
   }
 
   file { '/etc/asterisk/asterisk.conf':
-    ensure  => present,
-    owner   => 'asterisk',
-    group   => 'asterisk',
-    mode    => '0660',
-    source  => $asterisk_conf_source,
+    ensure => present,
+    owner  => 'asterisk',
+    group  => 'asterisk',
+    mode   => '0660',
+    source => $asterisk_conf_source,
   }
 
   file { '/etc/asterisk/modules.conf.d/modules.conf':
-    ensure  => present,
-    owner   => 'asterisk',
-    group   => 'asterisk',
-    mode    => '0660',
-    source  => $modules_conf_source,
+    ensure => present,
+    owner  => 'asterisk',
+    group  => 'asterisk',
+    mode   => '0660',
+    source => $modules_conf_source,
   }
 
   file { '/etc/asterisk':
