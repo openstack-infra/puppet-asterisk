@@ -25,34 +25,40 @@ class asterisk (
 ) {
   include ::asterisk::server::command
 
-  yumrepo { 'asteriskcurrent':
-    baseurl  => 'http://packages.asterisk.org/centos/$releasever/current/$basearch/',
-    descr    => 'Asterisk supporting packages produced by Digium',
-    enabled  => 1,
-    gpgcheck => 0,
-  }
+  if ($::osfamily == 'RedHat') {
+    yumrepo { 'asteriskcurrent':
+      baseurl  => 'http://packages.asterisk.org/centos/$releasever/current/$basearch/',
+      descr    => 'Asterisk supporting packages produced by Digium',
+      enabled  => 1,
+      gpgcheck => 0,
+    }
 
-  yumrepo { 'asterisk11':
-    baseurl  => 'http://packages.asterisk.org/centos/$releasever/asterisk-11/$basearch/',
-    descr    => 'Asterisk packages produced by Digium',
-    enabled  => 1,
-    gpgcheck => 0,
-    require  => Yumrepo['asteriskcurrent'],
-  }
+    yumrepo { 'asterisk11':
+      baseurl  => 'http://packages.asterisk.org/centos/$releasever/asterisk-11/$basearch/',
+      descr    => 'Asterisk packages produced by Digium',
+      enabled  => 1,
+      gpgcheck => 0,
+      require  => Yumrepo['asteriskcurrent'],
+    }
 
-  package { 'asterisknow-version' :
-    ensure  => present,
-    require => [
-      Yumrepo['asteriskcurrent'],
-    ],
-  }
+    package { 'asterisknow-version' :
+      ensure  => present,
+      require => [
+        Yumrepo['asteriskcurrent'],
+      ],
+    }
 
-  package { 'asterisk' :
-    ensure  => present,
-    require => [
-      Yumrepo['asterisk11'],
-      Package['asterisknow-version'],
-    ],
+    package { 'asterisk' :
+      ensure  => present,
+      require => [
+        Yumrepo['asterisk11'],
+        Package['asterisknow-version'],
+      ],
+    }
+  } else {
+    package { 'asterisk':
+      ensure => present,
+    }
   }
 
   $sounds = [
@@ -67,7 +73,7 @@ class asterisk (
 
   package { $sounds :
     ensure  => present,
-    require => Yumrepo['asteriskcurrent'],
+    require => Package['asterisk'],
   }
 
   file { '/etc/asterisk/asterisk.conf':
