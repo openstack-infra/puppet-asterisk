@@ -25,57 +25,73 @@ class asterisk (
 ) {
   include ::asterisk::server::command
 
-  yumrepo { 'asteriskcurrent':
-    baseurl  => 'http://packages.asterisk.org/centos/$releasever/current/$basearch/',
-    descr    => 'Asterisk supporting packages produced by Digium',
-    enabled  => 1,
-    gpgcheck => 0,
-  }
+  if ($::osfamily == 'RedHat') {
+    yumrepo { 'asteriskcurrent':
+      baseurl  => 'http://packages.asterisk.org/centos/$releasever/current/$basearch/',
+      descr    => 'Asterisk supporting packages produced by Digium',
+      enabled  => 1,
+      gpgcheck => 0,
+    }
 
-  yumrepo { 'asterisk11':
-    baseurl  => 'http://packages.asterisk.org/centos/$releasever/asterisk-11/$basearch/',
-    descr    => 'Asterisk packages produced by Digium',
-    enabled  => 1,
-    gpgcheck => 0,
-    require  => Yumrepo['asteriskcurrent'],
-  }
+    yumrepo { 'asterisk11':
+      baseurl  => 'http://packages.asterisk.org/centos/$releasever/asterisk-11/$basearch/',
+      descr    => 'Asterisk packages produced by Digium',
+      enabled  => 1,
+      gpgcheck => 0,
+      require  => Yumrepo['asteriskcurrent'],
+    }
 
-  package { 'asterisknow-version' :
-    ensure  => present,
-    require => [
-      Yumrepo['asteriskcurrent'],
-    ],
-  }
+    package { 'asterisknow-version' :
+      ensure  => present,
+      require => [
+        Yumrepo['asteriskcurrent'],
+      ],
+    }
 
-  package { 'asterisk' :
-    ensure  => present,
-    require => [
-      Yumrepo['asterisk11'],
-      Package['asterisknow-version'],
-    ],
+    package { 'asterisk' :
+      ensure  => present,
+      require => [
+        Yumrepo['asterisk11'],
+        Package['asterisknow-version'],
+      ],
+    }
+    $sounds = [
+      'asterisk-sounds-core-en-g722',
+      'asterisk-sounds-core-en-ulaw',
+      'asterisk-sounds-core-en-gsm',
+      'asterisk-sounds-extra-en-ulaw',
+      'asterisk-sounds-extra-en-gsm',
+      'asterisk-sounds-moh-opsound-wav',
+      'asterisk-sounds-moh-opsound-ulaw',
+    ]
+  } else {
+    package { 'asterisk':
+      ensure => present,
+    }
+    $sounds = [
+      'asterisk-core-sounds-en',
+      # Asterisk sounds extras was deleted in Ubuntu packaging because of
+      # copyright issues.
+      #'asterisk-sounds-extra',
+      'asterisk-moh-opsound-g722',
+      'asterisk-moh-opsound-gsm',
+      'asterisk-moh-opsound-wav',
+    ]
   }
-
-  $sounds = [
-    'asterisk-sounds-core-en-g722',
-    'asterisk-sounds-core-en-ulaw',
-    'asterisk-sounds-core-en-gsm',
-    'asterisk-sounds-extra-en-ulaw',
-    'asterisk-sounds-extra-en-gsm',
-    'asterisk-sounds-moh-opsound-wav',
-    'asterisk-sounds-moh-opsound-ulaw',
-  ]
 
   package { $sounds :
     ensure  => present,
-    require => Yumrepo['asteriskcurrent'],
+    require => Package['asterisk'],
   }
 
-  file { '/etc/asterisk/asterisk.conf':
-    ensure => present,
-    owner  => 'asterisk',
-    group  => 'asterisk',
-    mode   => '0660',
-    source => $asterisk_conf_source,
+  if ($asterisk_conf_source != undef):
+    file { '/etc/asterisk/asterisk.conf':
+      ensure => present,
+      owner  => 'asterisk',
+      group  => 'asterisk',
+      mode   => '0660',
+      source => $asterisk_conf_source,
+    }
   }
 
   file { '/etc/asterisk/modules.conf.d/modules.conf':
