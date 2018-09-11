@@ -37,6 +37,7 @@ define asterisk::function::customdir(
     purge   => true,
     recurse => true,
     require => File[$basedir],
+    before  => Service['asterisk'],
   }
 }
 
