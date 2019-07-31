@@ -1,3 +1,3 @@
-# OpenStack Asterisk Module
+# This repo has moved to OpenDev
 
-This module installs and configures Asterisk
+It can now be found at [https://opendev.org/opendev/puppet-asterisk](https://opendev.org/opendev/puppet-asterisk)
